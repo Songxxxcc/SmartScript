@@ -56,18 +56,18 @@ void Runtime::Run_Order(const string& order){
 		stringstream sorder(order);
 		string word;
 		sorder >> word;
-		if(word == ":"){
+		if(word == "{"){
 				data->blocks.push_front(Block());
-		} else if(word == ";"){
+		} else if(word == "}"){
 				data->blocks.pop_front();
 		} else if(data->blocks.front().is_pass){
 				return;
-		}else if(word == "OnWindows:"){
+		}else if(word == "OnWindows{"){
 				data->blocks.push_front(Block());
 #ifndef _WIN32
 				data->blocks.front().is_pass = true;
 #endif
-		} else if(word == "OnLinux:"){
+		} else if(word == "OnLinux}"){
 				data->blocks.push_front(Block());
 #ifndef linux
 				data->blocks.front().is_pass = true;
@@ -80,6 +80,8 @@ void Runtime::Run_Order(const string& order){
 				Api_Call(word,sorder);
 		} else if(word == ":"){
 				string line;
+				sorder >> line;
+				cout << line;
 				getline(sorder,line);
 				cout << line;
 		} else if(word == ":;"){
