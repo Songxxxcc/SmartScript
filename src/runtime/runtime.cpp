@@ -1,6 +1,6 @@
 #include "runtime.hpp"
 #include "../ssconfig.hpp"
-
+#include "../api/api.hpp"
 #include <iostream>
 #include <deque>
 #include <string>
@@ -78,6 +78,12 @@ void Runtime::Run_Order(const string& order){
 		} else if(word == "call"){
 				sorder >> word;
 				Api_Call(word,sorder);
+		} else if(word == ":"){
+				string line;
+				getline(sorder,line);
+				cout << line;
+		} else if(word == ":;"){
+				cout << endl;
 		}
 		else if(word == ";;"){
 				exit(0);
@@ -87,7 +93,10 @@ void Runtime::Run_Order(const string& order){
 void Api_Call(const std::string& name,istream& in){
 		if(name == "print_api_version"){
 				cout << "Api Version: " << SS_STD ;
-		} else {
+		} else if(name == "endl"){
+				cout << endl;
+		}
+	   	else {
 				throw CodeException( "Cannot find API: "+name,ErrorsNumber::UNKONW_API); 
 		}
 }

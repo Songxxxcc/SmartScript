@@ -1,3 +1,4 @@
 :
-$ firefox
+: hello word!
+:;
 ;
