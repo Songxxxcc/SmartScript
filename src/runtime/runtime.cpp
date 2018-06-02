@@ -10,24 +10,8 @@
 #include <sstream>
 using namespace std;
 
-struct Var{
-		unsigned int type;
-		unsigned long addr;
-};
 
-struct Block{
-		deque<long> ints;
-		deque<double> floats;
-		unordered_map<string,Var> vars;
-		bool is_pass = false;
-};
 
-struct Runtime_Vars{
-		deque<Block> blocks;
-		Runtime_Vars(){
-				blocks.push_front(Block());
-		}
-};
 
 CodeException::CodeException(const std::string& a,enum ErrorsNumber e){
 		about = a;
@@ -44,6 +28,7 @@ string CodeException::Show_Exception_Text() const{
 
 Runtime::Runtime(){
 		data = new Runtime_Vars();
+		nil.type = Type::NIL;
 }
 
 Runtime::~Runtime(){
@@ -67,7 +52,7 @@ void Runtime::Run_Order(const string& order){
 #ifndef _WIN32
 				data->blocks.front().is_pass = true;
 #endif
-		} else if(word == "OnLinux}"){
+		} else if(word == "OnLinux{"){
 				data->blocks.push_front(Block());
 #ifndef linux
 				data->blocks.front().is_pass = true;
@@ -81,11 +66,74 @@ void Runtime::Run_Order(const string& order){
 		} else if(word == ":"){
 				string line;
 				sorder >> line;
+				if(line.front() == '$'){
+						Block* block_p;
+						Var v = Get_Var(string(line.begin()+1,line.end()),&block_p);
+						if(v.type == Type::NIL){
+								// DON'T ANY DO
+						}
+						else if(v.type == Type::INT){
+								cout << block_p->ints[v.addr];
+						} else if(v.type == Type::FLOAT){
+								cout << block_p->floats[v.addr];
+						} else if(v.type == Type::STRING){
+								cout << block_p->strings[v.addr];
+						}
+						return;
+				}
 				cout << line;
 				getline(sorder,line);
 				cout << line;
 		} else if(word == ":;"){
 				cout << endl;
+		} else if(word == "int"){
+				string varname;
+				sorder >> varname;
+				string tmp;
+				sorder >> tmp;
+				int default_v = 0;
+				if(tmp == "="){
+						sorder >> default_v;
+				}
+				Add_Int(varname,default_v);
+		} else if(word == "float"){
+				string varname;
+				sorder >> varname;
+				string tmp;
+				sorder >> tmp;
+				float default_v = 0;
+				if(tmp == "="){
+						sorder >> default_v;
+				}
+				Add_Float(varname,default_v);
+
+		} else if(word == "string"){
+				string varname;
+				sorder >> varname;
+				string tmp;
+				sorder >> tmp;
+				string default_v_str;
+				string str;
+				if(tmp == "="){
+						sorder >> default_v_str;
+						string::iterator it = default_v_str.begin(), beg;
+						while(*it != '\"' && it != default_v_str.end()){
+								++it;
+						}
+						if(it == default_v_str.end()){
+								throw CodeException("NO DEFAULT STRING.", ErrorsNumber::NEED);
+						}
+						beg = it;
+						while(*it != '\"' && it != default_v_str.end()){
+								if(*it == '\\'){
+										str += string(beg,it);
+										++it;
+								}
+								++it;
+						}
+						str += string(beg,it);
+				}
+				Add_String(varname,str);
 		}
 		else if(word == ";;"){
 				exit(0);
@@ -102,4 +150,3 @@ void Api_Call(const std::string& name,istream& in){
 				throw CodeException( "Cannot find API: "+name,ErrorsNumber::UNKONW_API); 
 		}
 }
-

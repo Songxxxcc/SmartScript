@@ -23,8 +23,8 @@ int main(int argc ,char** argv){
 										cerr << ex.Show_Exception_Text() << endl;
 										cerr << "Cannot find this API. Please check your smartscript API version." << endl;
 								break;
-								//cerr << ex.Show_Exception_Text() << endl;
-
+								default:
+								cerr << ex.Show_Exception_Text() << endl;
 						}
 				}
 
